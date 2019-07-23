@@ -77,12 +77,12 @@ The ReimbursementType model is used to track what kind of reimbursement is being
     Occurs if they do not have the appropriate permissions.
 
 ## Available Endpoints
-  [POST /login](#login)  
-  [GET /users](#find-users)  
-  [GET /users/:id](#find-users-by-id)  
-  [PATCH /users](#update-user)  
-  [GET /reimbursements/status/:statusId](#find-reimbursements-by-status)  
-  [GET /reimbursements/author/userId:userId](#find-reimbursements-by-user)  
+  /[POST /login](#login)  
+  /[GET /users](#find-users)  
+  /[GET /users/:id](#find-users-by-id)  
+  /[PATCH /users](#update-user)  
+  /[GET /reimbursements/status/:statusId](#find-reimbursements-by-status)  
+  /[GET /reimbursements/author/userId:userId](#find-reimbursements-by-user)  
   [POST /reimbursements](#submit-reimbursement)  
   [PATCH /reimbursements](#update-reimbursement)  
 
@@ -242,10 +242,3 @@ Reimbursements should be ordered by date
     ```javascript
       Reimbursement
     ```
-
-# Stretch Goals
-These are not part of the core requirements but are things that could be worked on once the core requirements are done.
-  * Password Hashing
-  * Paging ans Sorting endpoints: [Reference For How](https://docs.microsoft.com/en-us/azure/architecture/best-practices/api-design#filter-and-paginate-data)
-  * Using JSON Web Tokens (JWTs) instead of Session Storage
-  * Being able to submit receipts. (I would recommend using AWS S3 buckets for this but if you do be cautious of including AWS Access Keys in your application)
