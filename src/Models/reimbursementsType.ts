@@ -1,8 +1,8 @@
 
 export default class ReimbursementType {
     constructor(
-        typeId: number, // primary key
-        type: string, // not null, unique
+    public typeId: number, // primary key
+    public type: string, // not null, unique
     ) { }
 
 }

@@ -48,22 +48,6 @@ export async function findById(id: number) {
 }
 
 
-// export async function findByFirstName(firstName: string) {
-//     console.log('finding users by first name');
-//     let client: PoolClient;
-//     try {
-//         client = await connectionPool.connect(); // basically .then is everything after this
-//         const result = await client.query('SELECT * FROM app_user WHERE first_name = $1', [firstName]);
-//         return result.rows.map(convertSqlUser);
-//     } catch (err) {
-//         console.log(err);
-//     } finally {
-//         client && client.release();
-//     }
-//     return undefined;
-// }
-
-
 
  export async function save(user: Users) {
     let client: PoolClient;
