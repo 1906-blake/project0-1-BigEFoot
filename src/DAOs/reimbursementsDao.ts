@@ -1,7 +1,7 @@
 import Reimbursements from "../Models/reimbursements";
-import { PoolClient } from "pg";
-import { connectionPool } from "../util/connection.util";
-import { convertSqlReimbursements } from "../util/reimbursements.converter";
+// import { PoolClient } from "pg";
+// import { connectionPool } from "../util/connection.util";
+// import { convertSqlReimbursements } from "../util/reimbursements.converter";
 
 // import { connectionPool } from '../util/connection.util';
 // import { PoolClient } from 'pg';
@@ -52,37 +52,59 @@ find reimbursement by owner of reimbursement
 //     return undefined;
 }
 
+export async function save(reimbursement: Reimbursements) {
+    // let client: PoolClient;
+    // try {
+    //     client = await connectionPool.connect(); // basically .then is everything after this
+    //     const queryString = `
+    //         INSERT INTO reimbursements (username, password, firstName, lastName, email, roleid)
+    //         VALUES 	($1, $2, $3, $4, $5, $6)
+    //         RETURNING userid
+    //     `;
+    //     const params = [user.username, user.password, user.firstName, user.lastName, user.email, user.roleid];
+    //     const result = await client.query(queryString, params);
+    //     return result.rows[0].user_id;
+    // } catch (err) {
+    //     console.log(err);
+    // } finally {
+    //     client && client.release();
+    // }
+    // console.log('found all');
+    // return undefined;
+}
+
+
 /*
-/Update  user fields
+/Update  reimbursement fields
 */
-// export async function update(newReimbursements: Reimbursements) {
-//     console.log('updating: ' + newReimbursements);
-//     const oldUser = await findByOwnerId(newUser.userId);
-//      if (!oldUser) {
-//          return undefined;
-//      }
-//      newUser = {
-//          ...oldUser,
-//          ...newUser
-//      };
-//      console.log(newUser);
-//      let client: PoolClient;
-//      try {
-//          client = await connectionPool.connect(); // basically .then is everything after this
-//          const queryString = `
-//          UPDATE app_user SET username = $1, password = $2, firstname = $3, lastname = $4, email = $6, role = $7
-//          WHERE user_Id = $8
-//          RETURNING *
-//              `;
-//          const params = [newUser.username, newUser.password, newUser.firstName, newUser.lastName, newUser.email, newUser.role];
-//          const result = await client.query(queryString, params);
-//          const sqlUser = result.rows[0];
-//          return convertSqlReimbursements(sqlUser);
-//      } catch (err) {
-//          console.log(err);
-//      } finally {
-//          client && client.release();
-//      }
-//      console.log('found all');
-//      return undefined;
-//  }
+export async function update(newReimbursements: Reimbursements) {
+    console.log('updating: ' + newReimbursements);
+    // const oldUser = await findByOwnerId(newUser.userId);
+    //  if (!oldUser) {
+    //      return undefined;
+    //  }
+    //  newUser = {
+    //      ...oldUser,
+    //      ...newUser
+    //  };
+    //  console.log(newUser);
+    //  let client: PoolClient;
+    //  try {
+    //      client = await connectionPool.connect(); // basically .then is everything after this
+    //      const queryString = `
+    //      UPDATE app_user SET username = $1, password = $2, firstname = $3, lastname = $4, email = $6, role = $7
+    //      WHERE user_Id = $8
+    //      RETURNING *
+    //          `;
+    //      const params = [newUser.username, newUser.password, newUser.firstName, newUser.lastName, newUser.email, newUser.role];
+    //      const result = await client.query(queryString, params);
+    //      const sqlUser = result.rows[0];
+    //      return convertSqlReimbursements(sqlUser);
+    //  } catch (err) {
+    //      console.log(err);
+    //  } finally {
+    //      client && client.release();
+    //  }
+    //  console.log('found all');
+    //  return undefined;
+ }

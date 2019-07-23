@@ -30,21 +30,21 @@ reimbursementsRouter.get('/author/userid/:userid', async (req, res) => {
  * /reimbursements
  * create new reimbursements
  */
-// reimbursementsRouter.post('', async (req, res) => {
-//     const reimbursement = req.body;
-//     if (!user) {
-//         res.sendStatus(400);
-//     } else {
-//         const id = await reimbursementsDao.save(user);
-//         if (!id) {
-//             res.sendStatus(400);
-//         } else {
-//             user.id = id;
-//             res.status(201); // created status code
-//             res.json(user);
-//         }
-//     }
-// });
+reimbursementsRouter.post('', async (req, res) => {
+    // const reimbursement = req.body;
+    // if (!reimbursement) {
+    //     res.sendStatus(400);
+    // } else {
+    //     const id = await reimbursementsDao.save(reimbursement);
+    //     if (!id) {
+    //         res.sendStatus(400);
+    //     } else {
+    //         reimbursement.id = id;
+    //         res.status(201); // created status code
+    //         res.json(reimbursement);
+    //     }
+    // }
+});
 
 
 /**
