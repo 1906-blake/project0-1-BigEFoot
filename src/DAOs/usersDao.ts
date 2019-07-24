@@ -49,24 +49,25 @@ export async function findById(id: number) {
 
 
 
- export async function save(user: Users) {
+export async function save(user: Users) {
     let client: PoolClient;
+    console.log('Here')
     try {
         client = await connectionPool.connect(); // basically .then is everything after this
         const queryString = `
-            INSERT INTO users (username, password, firstName, lastName, email, roleid)
+            INSERT INTO users (username, password, firstname, lastname, email, roleid)
             VALUES 	($1, $2, $3, $4, $5, $6)
             RETURNING userid
         `;
-        const params = [user.username, user.password, user.firstName, user.lastName, user.email, user.roleid];
+        const params = [user.username, user.password, user.firstname, user.lastname, user.email, user.roleid];
         const result = await client.query(queryString, params);
-        return result.rows[0].user_id;
+        return result.rows[0].userid;
     } catch (err) {
         console.log(err);
     } finally {
         client && client.release();
     }
-    console.log('found all');
+    console.log('found it');
     return undefined;
 }
 
@@ -76,26 +77,27 @@ export async function findById(id: number) {
 /*
 /Update  user fields
 */
-export async function update(newUser: Users) {
-   const oldUser = await findById(newUser.userId);
+export async function update(user: Users) {
+    console.log(user);
+    const oldUser = await findById(user.userid);
     if (!oldUser) {
         return undefined;
     }
-    newUser = {
+    user = {
         ...oldUser,
-        ...newUser
+        ...user
     };
-    console.log(newUser);
+    console.log(user);
     let client: PoolClient;
     try {
         client = await connectionPool.connect(); // basically .then is everything after this
         const queryString = `
         UPDATE users SET username = $1, password = $2, firstname = $3, 
                             lastname = $4, email = $5, roleid = $6
-        WHERE userId = $7
+        WHERE userid = $7
         RETURNING *
             `;
-        const params = [newUser.username, newUser.password, newUser.firstName, newUser.lastName, newUser.email, newUser.roleid, newUser.userId];
+        const params = [user.username, user.password, user.firstname, user.lastname, user.email, user.roleid, user.userid];
         const result = await client.query(queryString, params);
         const sqlUser = result.rows[0];
         return convertSqlUser(sqlUser);
