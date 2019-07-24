@@ -4,6 +4,7 @@ import { convertSqlUser } from '../util/users.converter';
 import Users from '../Models/users';
 
 
+//Used by login
 export async function findByUsernameAndPassword(username: string, password: string) {
 
     let client: PoolClient;
@@ -36,7 +37,6 @@ export async function findAll() {
         client = await connectionPool.connect(); // basically .then is everything after this
         const result = await client.query('SELECT * FROM users');
         // convert result from sql object to js object
-        console.log(result.rows);
         return result.rows.map(convertSqlUser);
     } catch (err) {
         console.log(err);
@@ -56,7 +56,6 @@ export async function findById(id: number) {
     let client: PoolClient;
     try {
         client = await connectionPool.connect(); // basically .then is everything after this
-        console.log('Here');
         const result = await client.query('SELECT * FROM users WHERE userid = $1', [id]);
         const sqlUser = result.rows[0];
         return sqlUser && convertSqlUser(sqlUser);
@@ -69,10 +68,9 @@ export async function findById(id: number) {
 }
 
 
-
+//post/users
 export async function save(user: Users) {
     let client: PoolClient;
-    console.log('Here')
     try {
         client = await connectionPool.connect(); // basically .then is everything after this
         const queryString = `
@@ -99,11 +97,11 @@ export async function save(user: Users) {
 /Update  user fields
 */
 export async function update(user: Users) {
-    console.log(user);
     const oldUser = await findById(user.userid);
     if (!oldUser) {
         return undefined;
     }
+    console.log(oldUser);
     user = {
         ...oldUser,
         ...user
@@ -111,14 +109,16 @@ export async function update(user: Users) {
     console.log(user);
     let client: PoolClient;
     try {
-        client = await connectionPool.connect(); // basically .then is everything after this
+        client = await connectionPool.connect();
         const queryString = `
         UPDATE users SET username = $1, password = $2, firstname = $3, 
                             lastname = $4, email = $5, roleid = $6
         WHERE userid = $7
         RETURNING *
             `;
-        const params = [user.username, user.password, user.firstname, user.lastname, user.email, user.roleid, user.userid];
+        const params = [user.username, user.password, user.firstname, 
+                 user.lastname, user.email, user.roleid, user.userid];
+                 console.log(params);
         const result = await client.query(queryString, params);
         const sqlUser = result.rows[0];
         return convertSqlUser(sqlUser);
@@ -127,6 +127,6 @@ export async function update(user: Users) {
     } finally {
         client && client.release();
     }
-    console.log('found all');
+    console.log('found it');
     return undefined;
 }

@@ -27,15 +27,6 @@ usersRouter.get('/:id', async (req, res) => {
     res.json(user);
 });
 
-/**
- * /users/firstName/:firstName
- */
-// usersRouter.get('/firstName/:firstName', async (req, res) => {
-//     const firstName = req.params.firstName;
-//     const users = await usersDao.findByFirstName(firstName);
-//     res.json(users);
-// });
-
 
 /**
  * /users

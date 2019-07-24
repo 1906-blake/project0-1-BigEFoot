@@ -27,6 +27,9 @@ reimbursementsRouter.get('/author/:authorid', async (req, res) => {
     res.json(reimbursement);
 });
 
+
+// /reimbursements/reimbursementid/:reimbursementid
+// find by reimbursement ID
 reimbursementsRouter.get('/reimbursementid/:reimbursementid', async (req, res) => {
     const reimbursement = await reimbursementsDao.findByReimbursmentId(+req.params.reimbursementid);
     res.json(reimbursement);
