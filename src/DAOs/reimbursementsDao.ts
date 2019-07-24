@@ -10,19 +10,20 @@ find reimbursement by reimbursement statusid
 */
 export async function findByStatusId(id: number) {
     console.log('finding reimbursement by status ID: ' + id);
-    // let client: PoolClient;
-    // try {
-    //     client = await connectionPool.connect();
-    //     console.log('Here');
-    //     const result = await client.query('SELECT * FROM reimbursements WHERE reimbursementid = $1', [id]);
-    //     const sqlReimbursement = result.rows;
-    //     return sqlReimbursement && convertSqlReimbursements(sqlReimbursement);
-    // } catch (err) {
-    //     console.log(err);
-    // } finally {
-    //     client && client.release();
-    // }
-    // return undefined;
+    let client: PoolClient;
+    try {
+        client = await connectionPool.connect();
+        console.log('Here');
+        const result = await client.query('SELECT * FROM reimbursements WHERE statusid = $1', [id]);
+        const sqlReimbursements = result.rows[0];
+        
+        return sqlReimbursements && convertSqlReimbursements(sqlReimbursements);
+    } catch (err) {
+        console.log(err);
+    } finally {
+        client && client.release();
+    }
+    return undefined;
 }
 
 /*
@@ -30,21 +31,22 @@ find reimbursement by owner of reimbursement
 /reimbursement/author/userId:userId
 /not done
 */
- export async function findByAuthorId(id: number) {
-     console.log('finding reimbursement by owner: ' + id);
-//     let client: PoolClient;
-//     try {
-//         client = await connectionPool.connect(); // basically .then is everything after this
-//         console.log('Here');
-//         const result = await client.query('SELECT * FROM users WHERE userid = $1', [id]);
-//         const sqlUser = result.rows[0];
-//         return sqlUser && convertSqlUser(sqlUser);
-//     } catch (err) {
-//         console.log(err);
-//     } finally {
-//         client && client.release();
-//     }
-//     return undefined;
+export async function findByAuthorId(id: number) {
+    console.log('finding reimbursement by author: ' + id);
+    let client: PoolClient;
+    try {
+        client = await connectionPool.connect();
+        console.log('Here');
+        const result = await client.query('SELECT * FROM reimbursements WHERE authorid = $1', [id]);
+        const sqlReimbursements = result.rows[0];
+        
+        return sqlReimbursements && convertSqlReimbursements(sqlReimbursements);
+    } catch (err) {
+        console.log(err);
+    } finally {
+        client && client.release();
+    }
+    return undefined;
 }
 
 export async function save(reimbursement: Reimbursements) {
@@ -113,7 +115,7 @@ export async function update(reimbursement: Reimbursements) {
              `;
              const params = [reimbursement.amount, reimbursement.datesubmitted, reimbursement.dateresolved, reimbursement.description, 
                 reimbursement.authorid, reimbursement.resolverid, reimbursement.statusid, reimbursement.typeid, reimbursement.reimbursementid];
-                console.log(params + '/n');
+                console.log(params + '\n');
          const result = await client.query(queryString, params);
          const sqlReimbursement = result.rows[0];
          return convertSqlReimbursements(sqlReimbursement);

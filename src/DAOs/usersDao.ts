@@ -3,11 +3,32 @@ import { PoolClient } from 'pg';
 import { convertSqlUser } from '../util/users.converter';
 import Users from '../Models/users';
 
+
+export async function findByUsernameAndPassword(username: string, password: string) {
+
+    let client: PoolClient;
+    try {
+        client = await connectionPool.connect();
+        const queryString = `
+            SELECT * FROM users
+            WHERE username = $1 AND password = $2
+        `;
+        const result = await client.query(queryString, [username, password]);
+        const sqlUser = result.rows[0]; // there should really only be 1 row at best
+        return sqlUser && convertSqlUser(sqlUser);
+    } catch (err) {
+        console.log(err);
+    } finally {
+        client && client.release();
+    }
+    return undefined;
+}
+
+
 /*
 find all users
 /user
 */
-
 export async function findAll() {
     console.log('finding all users');
     let client: PoolClient;

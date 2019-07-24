@@ -13,20 +13,21 @@ export const reimbursementsRouter = express.Router();
  */
 reimbursementsRouter.get('/status/:statusid', async (req, res) => {
     const reimbursement = await reimbursementsDao.findByStatusId(+req.params.statusid);
+    console.log(reimbursement);
     res.json(reimbursement);
 });
 
 
 /**
- * /reimbursements/author/:userId
+ * /reimbursements/author/:authorid
  * find reimbursement by the author's id
  */
-reimbursementsRouter.get('/author/userid/:userid', async (req, res) => {
-    const reimbursement = await reimbursementsDao.findByAuthorId(+req.params.userid);
+reimbursementsRouter.get('/author/:authorid', async (req, res) => {
+    const reimbursement = await reimbursementsDao.findByAuthorId(+req.params.authorid);
     res.json(reimbursement);
 });
 
-reimbursementsRouter.get('/reimbursements/:reimbursementid', async (req, res) => {
+reimbursementsRouter.get('/reimbursementid/:reimbursementid', async (req, res) => {
     const reimbursement = await reimbursementsDao.findByReimbursmentId(+req.params.reimbursementid);
     res.json(reimbursement);
 });
