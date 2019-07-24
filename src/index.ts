@@ -2,6 +2,8 @@ import express from 'express';
 import bodyParser from 'body-parser';
 import { usersRouter } from './Routers/usersRouter';
 import { reimbursementsRouter } from './Routers/reimbursementsRouter';
+import { authRouter } from './Routers/auth.router';
+import { sessionMiddleware } from './Middleware/session.middleware';
 
 // specify the port will run on
 const port = 8012;
@@ -19,28 +21,12 @@ app.use((req, res, next) => {
 
 // set up body parser to convert json body to object stored on req.body
 app.use(bodyParser.json());
+app.use(sessionMiddleware);
 
 // Routers
 app.use('/users', usersRouter);
 app.use('/reimbursements', reimbursementsRouter);
-
-// app.get('/test', (req, res) => {
-//     res.send('this is a test endpoint');
-// });
-
-app.post('/login', (req, res) => {
-    console.log('body = ', req.body); 
-    res.json({
-        username: 'edward',
-        email: 'e@gmail.com',
-        firstName: 'Edward',
-        lastName: 'McIntire'
-    })
-});
-
-app.delete('/logout', (req, res) => {``
-    res.end();
-});
+app.use(authRouter)
 
 
 app.listen(port, () => {

@@ -169,8 +169,6 @@ The ReimbursementType model is used to track what kind of reimbursement is being
 Reimbursements should be ordered by date
 * **URL**
   `/reimbursements/status/:statusId`  
-  For a challenge you could do this instead:  
-  `/reimbursements/status/:statudId/date-submitted?start=:startDate&end=:endDate`
 
 * **Method:**
   `GET`

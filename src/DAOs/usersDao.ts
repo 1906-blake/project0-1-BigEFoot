@@ -35,7 +35,9 @@ export async function findAll() {
     let client: PoolClient;
     try {
         client = await connectionPool.connect(); // basically .then is everything after this
-        const result = await client.query('SELECT * FROM users');
+        const result = await client.query(`
+        SELECT * FROM users;
+        `);
         // convert result from sql object to js object
         return result.rows.map(convertSqlUser);
     } catch (err) {
@@ -116,9 +118,9 @@ export async function update(user: Users) {
         WHERE userid = $7
         RETURNING *
             `;
-        const params = [user.username, user.password, user.firstname, 
-                 user.lastname, user.email, user.roleid, user.userid];
-                 console.log(params);
+        const params = [user.username, user.password, user.firstname,
+        user.lastname, user.email, user.roleid, user.userid];
+        console.log(params);
         const result = await client.query(queryString, params);
         const sqlUser = result.rows[0];
         return convertSqlUser(sqlUser);
