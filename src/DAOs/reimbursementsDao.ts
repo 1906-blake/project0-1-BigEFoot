@@ -13,11 +13,22 @@ export async function findByStatusId(id: number) {
     let client: PoolClient;
     try {
         client = await connectionPool.connect();
-        console.log('Here');
-        const result = await client.query('SELECT * FROM reimbursements WHERE statusid = $1', [id]);
-        const sqlReimbursements = result.rows[0];
-        
-        return sqlReimbursements && convertSqlReimbursements(sqlReimbursements);
+        const queryString = `
+        SELECT * FROM reimbursements c
+        LEFT JOIN authorview a
+          ON (c.authorid = a.auserid)
+        LEFT JOIN resolverview r
+          ON (c.resolverid = r.ruserid)
+        LEFT JOIN reimbursementstatus
+          USING (statusid)
+        LEFT JOIN reimbursementtype
+            USING (typeid)
+        LEFT JOIN roles
+          ON (r.rroleid = roleid AND a.aroleid = roleid)
+        WHERE statusid = $1
+           ORDER BY datesubmitted;`;
+        const result = await client.query(queryString, [id]);
+         return result.rows.map(convertSqlReimbursements);
     } catch (err) {
         console.log(err);
     } finally {
@@ -36,11 +47,20 @@ export async function findByAuthorId(id: number) {
     let client: PoolClient;
     try {
         client = await connectionPool.connect();
-        console.log('Here');
-        const result = await client.query('SELECT * FROM reimbursements WHERE authorid = $1', [id]);
-        const sqlReimbursements = result.rows[0];
-        
-        return sqlReimbursements && convertSqlReimbursements(sqlReimbursements);
+        const queryString = `
+        SELECT * FROM reimbursements c
+         LEFT JOIN authorview a
+          ON (c.authorid = a.auserid)
+         LEFT JOIN resolverview r
+          ON (c.resolverid = r.ruserid)
+         LEFT JOIN reimbursementstatus
+          USING (statusid)
+         LEFT JOIN reimbursementtype
+          USING (typeid)
+        WHERE authorid = $1
+           ORDER BY datesubmitted;`;
+        const result = await client.query(queryString, [id]);
+        return result.rows.map(convertSqlReimbursements);
     } catch (err) {
         console.log(err);
     } finally {
@@ -59,8 +79,8 @@ export async function save(reimbursement: Reimbursements) {
             VALUES 	($1, $2, $3, $4, $5, $6, $7)
             RETURNING reimbursementid
         `;
-        const params = [reimbursement.amount, reimbursement.datesubmitted, reimbursement.description, 
-            reimbursement.authorid, reimbursement.resolverid, reimbursement.statusid, reimbursement.typeid];
+        const params = [reimbursement.amount, reimbursement.datesubmitted, reimbursement.description,
+        reimbursement.authorid, reimbursement.resolverid, reimbursement.statusid, reimbursement.typeid];
         const result = await client.query(queryString, params);
         return result.rows[0].reimbursementid;
     } catch (err) {
@@ -96,34 +116,34 @@ export async function findByReimbursmentId(id: number) {
 export async function update(reimbursement: Reimbursements) {
     console.log('updating: ' + reimbursement);
     const oldReimbursement = await findByReimbursmentId(reimbursement.reimbursementid);
-     if (!oldReimbursement) {
-         return undefined;
-     }
-     reimbursement = {
-         ...oldReimbursement,
-         ...reimbursement
-     };
-     console.log(reimbursement);
-     let client: PoolClient;
-     try {
-         client = await connectionPool.connect(); // basically .then is everything after this
-         const queryString = `
+    if (!oldReimbursement) {
+        return undefined;
+    }
+    reimbursement = {
+        ...oldReimbursement,
+        ...reimbursement
+    };
+    console.log(reimbursement);
+    let client: PoolClient;
+    try {
+        client = await connectionPool.connect(); // basically .then is everything after this
+        const queryString = `
          UPDATE reimbursements SET amount = $1, datesubmitted = $2, dateresolved = $3, 
          description = $4, authorid = $5, resolverid = $6, statusid = $7, typeid = $8
          WHERE reimbursementid = $9
          RETURNING *
              `;
-             const params = [reimbursement.amount, reimbursement.datesubmitted, reimbursement.dateresolved, reimbursement.description, 
-                reimbursement.authorid, reimbursement.resolverid, reimbursement.statusid, reimbursement.typeid, reimbursement.reimbursementid];
-                console.log(params + '\n');
-         const result = await client.query(queryString, params);
-         const sqlReimbursement = result.rows[0];
-         return convertSqlReimbursements(sqlReimbursement);
-     } catch (err) {
-         console.log(err);
-     } finally {
-         client && client.release();
-     }
-     console.log('found all');
-     return undefined;
- }
+        const params = [reimbursement.amount, reimbursement.datesubmitted, reimbursement.dateresolved, reimbursement.description,
+        reimbursement.authorid, reimbursement.resolverid, reimbursement.statusid, reimbursement.typeid, reimbursement.reimbursementid];
+        console.log(params + '\n');
+        const result = await client.query(queryString, params);
+        const sqlReimbursement = result.rows[0];
+        return convertSqlReimbursements(sqlReimbursement);
+    } catch (err) {
+        console.log(err);
+    } finally {
+        client && client.release();
+    }
+    console.log('found all');
+    return undefined;
+}

@@ -36,7 +36,9 @@ export async function findAll() {
     try {
         client = await connectionPool.connect(); // basically .then is everything after this
         const result = await client.query(`
-        SELECT * FROM users;
+        SELECT * FROM users 
+        Left join roles
+        using (roleid);
         `);
         // convert result from sql object to js object
         return result.rows.map(convertSqlUser);
@@ -58,7 +60,11 @@ export async function findById(id: number) {
     let client: PoolClient;
     try {
         client = await connectionPool.connect(); // basically .then is everything after this
-        const result = await client.query('SELECT * FROM users WHERE userid = $1', [id]);
+        const result = await client.query(`
+        SELECT * FROM users 
+        Left join roles
+        using (roleid)
+        WHERE userid = $1`, [id]);
         const sqlUser = result.rows[0];
         return sqlUser && convertSqlUser(sqlUser);
     } catch (err) {
@@ -80,7 +86,7 @@ export async function save(user: Users) {
             VALUES 	($1, $2, $3, $4, $5, $6)
             RETURNING userid
         `;
-        const params = [user.username, user.password, user.firstname, user.lastname, user.email, user.roleid];
+        const params = [user.username, user.password, user.firstname, user.lastname, user.email, user.role];
         const result = await client.query(queryString, params);
         return result.rows[0].userid;
     } catch (err) {
@@ -119,7 +125,7 @@ export async function update(user: Users) {
         RETURNING *
             `;
         const params = [user.username, user.password, user.firstname,
-        user.lastname, user.email, user.roleid, user.userid];
+        user.lastname, user.email, user.role, user.userid];
         console.log(params);
         const result = await client.query(queryString, params);
         const sqlUser = result.rows[0];

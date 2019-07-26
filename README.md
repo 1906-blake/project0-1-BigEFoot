@@ -77,14 +77,14 @@ The ReimbursementType model is used to track what kind of reimbursement is being
     Occurs if they do not have the appropriate permissions.
 
 ## Available Endpoints
-  //[POST /login](#login)  
-  //[GET /users](#find-users)  
-  //[GET /users/:id](#find-users-by-id)  
-  //[PATCH /users](#update-user)  
-  //[GET /reimbursements/status/:statusId](#find-reimbursements-by-status)  
- //[GET /reimbursements/author/userId:userId](#find-reimbursements-by-user)  
-  //[POST /reimbursements](#submit-reimbursement)  
-  //[PATCH /reimbursements](#update-reimbursement)  
+  [POST /login](#login)  
+  [GET /users](#find-users)  
+  [GET /users/:id](#find-users-by-id)  
+  [PATCH /users](#update-user)  
+  [GET /reimbursements/status/:statusId](#find-reimbursements-by-status)  
+ [GET /reimbursements/author/userId:userId](#find-reimbursements-by-user)  
+  [POST /reimbursements](#submit-reimbursement)  
+  [PATCH /reimbursements](#update-reimbursement)  
 
 ### **Login**  
 * **URL**
@@ -186,8 +186,7 @@ Reimbursements should be ordered by date
 Reimbursements should be ordered by date
 * **URL**
   `/reimbursements/author/userId/:userId`  
-  For a challenge you could do this instead:  
-  `/reimbursements/author/userId/:userId/date-submitted?start=:startDate&end=:endDate`
+
 
 * **Method:**
   `GET`
