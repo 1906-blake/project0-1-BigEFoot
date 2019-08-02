@@ -14,21 +14,24 @@ export async function findByStatusId(id: number) {
     try {
         client = await connectionPool.connect();
         const queryString = `
-        SELECT * FROM reimbursements c
-        LEFT JOIN authorview a
-          ON (c.authorid = a.auserid)
-        LEFT JOIN resolverview r
-          ON (c.resolverid = r.ruserid)
-        LEFT JOIN reimbursementstatus
-          USING (statusid)
-        LEFT JOIN reimbursementtype
-            USING (typeid)
-        LEFT JOIN roles
-          ON (r.rroleid = roleid AND a.aroleid = roleid)
-        WHERE statusid = $1
-           ORDER BY datesubmitted;`;
+        SELECT r.reimbursementid, r.amount, r.datesubmitted, r.dateresolved, r.description,
+		au.username, au.firstname, au.lastname, ru.username, ru.firstname, ru.lastname,
+		rs.
+	    FROM reimbursements AS r
+	    LEFT JOIN users AS au
+		    ON (au.userid = r.authorid)
+	    LEFT JOIN users AS ru
+		    ON (r.resolverid = ru.userid)
+	    LEFT JOIN roles AS ro
+		    ON (ur.roleid = au.roleid)
+	    LEFT JOIN reimbursementstatus AS rs
+		    ON (r.reimbursementstatus = rs.statusid)
+	    LEFT JOIN reimbursementtype AS rt
+		    ON (r.reimbursementtype = rt.typeid)
+	    WHERE statusid = 4
+	    ORDER BY datesubmitted;`;
         const result = await client.query(queryString, [id]);
-         return result.rows.map(convertSqlReimbursements);
+        return result.rows.map(convertSqlReimbursements);
     } catch (err) {
         console.log(err);
     } finally {
