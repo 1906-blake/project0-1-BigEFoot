@@ -3,6 +3,44 @@ import { PoolClient } from "pg";
 import { connectionPool } from "../util/connection.util";
 import { convertSqlReimbursements } from "../util/reimbursements.converter";
 
+// /reimbursements
+export async function findAll() {
+    console.log('finding all users');
+    let client: PoolClient;
+    try {
+        client = await connectionPool.connect(); // basically .then is everything after this
+        const result = await client.query(`
+        SELECT
+        reim.reimbursementid, reim.amount, reim.datesubmitted, reim.dateresolved, reim.description, reimstat.status, reimtype.type,
+	    author.username, author.firstname, author.lastname, author.email, authrole.role, 
+	    resolv.username, resolv.firstname, resolv.lastname, resolv.email, resolvrole.role
+        FROM reimbursements AS reim
+        LEFT JOIN users AS author
+	        ON (author.userid = reim.authorid)
+        LEFT JOIN users AS resolv
+	        ON (reim.resolverid = resolv.userid)
+        LEFT JOIN roles AS authrole
+	        ON (authrole.roleid = author.roleid)
+        LEFT JOIN roles AS resolvrole
+	        ON (resolvrole.roleid = resolv.roleid)
+        LEFT JOIN reimbursementstatus AS reimstat
+	        USING (statusid)
+        LEFT JOIN reimbursementtype AS reimtype
+	        USING (typeid)
+	    ORDER BY datesubmitted;
+        `);
+        // convert result from sql object to js object
+        return result.rows.map(convertSqlReimbursements);
+    } catch (err) {
+        console.log(err);
+    } finally {
+        client && client.release();
+    }
+    console.log('found all');
+    return undefined;
+}
+
+
 /*
 find reimbursement by reimbursement statusid
 /reimbursement/status/:statusid
@@ -14,21 +52,24 @@ export async function findByStatusId(id: number) {
     try {
         client = await connectionPool.connect();
         const queryString = `
-        SELECT r.reimbursementid, r.amount, r.datesubmitted, r.dateresolved, r.description,
-		au.username, au.firstname, au.lastname, ru.username, ru.firstname, ru.lastname,
-		rs.
-	    FROM reimbursements AS r
-	    LEFT JOIN users AS au
-		    ON (au.userid = r.authorid)
-	    LEFT JOIN users AS ru
-		    ON (r.resolverid = ru.userid)
-	    LEFT JOIN roles AS ro
-		    ON (ur.roleid = au.roleid)
-	    LEFT JOIN reimbursementstatus AS rs
-		    ON (r.reimbursementstatus = rs.statusid)
-	    LEFT JOIN reimbursementtype AS rt
-		    ON (r.reimbursementtype = rt.typeid)
-	    WHERE statusid = 4
+        SELECT
+        reim.reimbursementid, reim.amount, reim.datesubmitted, reim.dateresolved, reim.description, reimstat.status, reimtype.type,
+	    author.username, author.firstname, author.lastname, author.email, authrole.role, 
+	    resolv.username, resolv.firstname, resolv.lastname, resolv.email, resolvrole.role
+        FROM reimbursements AS reim
+        LEFT JOIN users AS author
+	        ON (author.userid = reim.authorid)
+        LEFT JOIN users AS resolv
+	        ON (reim.resolverid = resolv.userid)
+        LEFT JOIN roles AS authrole
+	        ON (authrole.roleid = author.roleid)
+        LEFT JOIN roles AS resolvrole
+	        ON (resolvrole.roleid = resolv.roleid)
+        LEFT JOIN reimbursementstatus AS reimstat
+	        USING (statusid)
+        LEFT JOIN reimbursementtype AS reimtype
+	        USING (typeid)
+        WHERE statusid = $1
 	    ORDER BY datesubmitted;`;
         const result = await client.query(queryString, [id]);
         return result.rows.map(convertSqlReimbursements);
@@ -51,17 +92,25 @@ export async function findByAuthorId(id: number) {
     try {
         client = await connectionPool.connect();
         const queryString = `
-        SELECT * FROM reimbursements c
-         LEFT JOIN authorview a
-          ON (c.authorid = a.auserid)
-         LEFT JOIN resolverview r
-          ON (c.resolverid = r.ruserid)
-         LEFT JOIN reimbursementstatus
-          USING (statusid)
-         LEFT JOIN reimbursementtype
-          USING (typeid)
+        SELECT
+        reim.reimbursementid, reim.amount, reim.datesubmitted, reim.dateresolved, reim.description, reimstat.status, reimtype.type,
+	    author.username, author.firstname, author.lastname, author.email, authrole.role, 
+	    resolv.username, resolv.firstname, resolv.lastname, resolv.email, resolvrole.role
+        FROM reimbursements AS reim
+        LEFT JOIN users AS author
+	        ON (author.userid = reim.authorid)
+        LEFT JOIN users AS resolv
+	        ON (reim.resolverid = resolv.userid)
+        LEFT JOIN roles AS authrole
+	        ON (authrole.roleid = author.roleid)
+        LEFT JOIN roles AS resolvrole
+	        ON (resolvrole.roleid = resolv.roleid)
+        LEFT JOIN reimbursementstatus AS reimstat
+	        USING (statusid)
+        LEFT JOIN reimbursementtype AS reimtype
+	        USING (typeid)
         WHERE authorid = $1
-           ORDER BY datesubmitted;`;
+	    ORDER BY datesubmitted;`
         const result = await client.query(queryString, [id]);
         return result.rows.map(convertSqlReimbursements);
     } catch (err) {
