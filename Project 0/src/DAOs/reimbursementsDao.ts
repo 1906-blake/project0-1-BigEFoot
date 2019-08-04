@@ -5,7 +5,7 @@ import { convertSqlReimbursements } from "../util/reimbursements.converter";
 
 // /reimbursements
 export async function findAll() {
-    console.log('finding all users');
+    console.log('finding all reimbursements');
     let client: PoolClient;
     try {
         client = await connectionPool.connect(); // basically .then is everything after this

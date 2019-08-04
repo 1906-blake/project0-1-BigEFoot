@@ -6,6 +6,17 @@ import * as reimbursementsDao from '../DAOs/reimbursementsDao'
 // for all enpoints starting with /reimbursements
 export const reimbursementsRouter = express.Router();
 
+/**
+ * /reimbursements
+ * find all reimbursements
+ */
+reimbursementsRouter.get('',
+    //authMiddleware('admin', 'manager'),
+    async (req, res) => {
+        const reim = await reimbursementsDao.findAll();
+        res.json(reim);
+    })
+
 
 /**
  * /reimbursements/status/:statusId
