@@ -9,6 +9,6 @@ export default class Users {
     public firstname = '', // not null
     public lastname = '',// not null
     public email = '', // not null
-    public role: Roles
+    public role: Roles // Foriegn Key
     ) { }
 }

@@ -94,7 +94,7 @@ export async function save(user: Users) {
     } finally {
         client && client.release();
     }
-    console.log('found it');
+    console.log('Done');
     return undefined;
 }
 
@@ -120,12 +120,12 @@ export async function update(user: Users) {
         client = await connectionPool.connect();
         const queryString = `
         UPDATE users SET username = $1, password = $2, firstname = $3, 
-                            lastname = $4, email = $5, roleid = $6
+                        lastname = $4, email = $5, roleid = $6
         WHERE userid = $7
         RETURNING *
             `;
         const params = [user.username, user.password, user.firstname,
-        user.lastname, user.email, user.role, user.userid];
+        user.lastname, user.email, user.role.roleid, user.userid];
         console.log(params);
         const result = await client.query(queryString, params);
         const sqlUser = result.rows[0];

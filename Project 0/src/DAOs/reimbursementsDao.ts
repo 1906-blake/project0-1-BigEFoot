@@ -2,6 +2,7 @@ import Reimbursements from "../Models/reimbursements";
 import { PoolClient } from "pg";
 import { connectionPool } from "../util/connection.util";
 import { convertSqlReimbursements } from "../util/reimbursements.converter";
+import { convertStatus } from "../util/status.converter";
 
 // /reimbursements
 export async function findAll() {
@@ -10,10 +11,11 @@ export async function findAll() {
     try {
         client = await connectionPool.connect(); // basically .then is everything after this
         const result = await client.query(`
-        SELECT
-        reim.reimbursementid, reim.amount, reim.datesubmitted, reim.dateresolved, reim.description, reimstat.status, reimtype.type,
-	    author.username, author.firstname, author.lastname, author.email, authrole.role, 
-	    resolv.username, resolv.firstname, resolv.lastname, resolv.email, resolvrole.role
+        SELECT reim.*, author.userid, author.firstname, author.lastname, author.roleid,
+	    resolv.userid AS resid, resolv.username AS resusername, 
+	    resolv.password AS respassword, resolv.firstname AS resfirstname, 
+	    resolv.lastname AS reslastname, resolv.email AS resemail, resolv.roleid AS resroleid,
+	    reimstat.status, reimtype.type, resolvrole.role AS resrole
         FROM reimbursements AS reim
         LEFT JOIN users AS author
 	        ON (author.userid = reim.authorid)
@@ -40,6 +42,25 @@ export async function findAll() {
     return undefined;
 }
 
+// /reimbursements
+export async function findStatus() {
+    console.log('finding all Status');
+    let client: PoolClient;
+    try {
+        client = await connectionPool.connect();
+        const result = await client.query(`
+        SELECT * FROM reimbursementstatus;
+        `);
+        return result.rows.map(convertStatus);
+    } catch (err) {
+        console.log(err);
+    } finally {
+        client && client.release();
+    }
+    console.log('found all');
+    return undefined;
+}
+
 
 /*
 find reimbursement by reimbursement statusid
@@ -52,10 +73,11 @@ export async function findByStatusId(id: number) {
     try {
         client = await connectionPool.connect();
         const queryString = `
-        SELECT
-        reim.reimbursementid, reim.amount, reim.datesubmitted, reim.dateresolved, reim.description, reimstat.status, reimtype.type,
-	    author.username, author.firstname, author.lastname, author.email, authrole.role, 
-	    resolv.username, resolv.firstname, resolv.lastname, resolv.email, resolvrole.role
+        SELECT reim.*, author.userid, author.firstname, author.lastname, author.roleid,
+	    resolv.userid as resid, resolv.username as resusername, 
+	    resolv.password as respassword, resolv.firstname as resfirstname, 
+	    resolv.lastname as reslastname, resolv.email as resemail, resolv.roleid as resroleid,
+	    reimstat.status as statusname, reimtype.type as typename
         FROM reimbursements AS reim
         LEFT JOIN users AS author
 	        ON (author.userid = reim.authorid)
@@ -92,10 +114,11 @@ export async function findByAuthorId(id: number) {
     try {
         client = await connectionPool.connect();
         const queryString = `
-        SELECT
-        reim.reimbursementid, reim.amount, reim.datesubmitted, reim.dateresolved, reim.description, reimstat.status, reimtype.type,
-	    author.username, author.firstname, author.lastname, author.email, authrole.role, 
-	    resolv.username, resolv.firstname, resolv.lastname, resolv.email, resolvrole.role
+        SELECT reim.*, author.userid, author.firstname, author.lastname, author.roleid,
+	    resolv.userid as resid, resolv.username as resusername, 
+	    resolv.password as respassword, resolv.firstname as resfirstname, 
+	    resolv.lastname as reslastname, resolv.email as resemail, resolv.roleid as resroleid,
+	    reimstat.status as statusname, reimtype.type as typename
         FROM reimbursements AS reim
         LEFT JOIN users AS author
 	        ON (author.userid = reim.authorid)
@@ -132,7 +155,7 @@ export async function save(reimbursement: Reimbursements) {
             RETURNING reimbursementid
         `;
         const params = [reimbursement.amount, reimbursement.datesubmitted, reimbursement.description,
-        reimbursement.authorid, reimbursement.resolverid, reimbursement.statusid, reimbursement.typeid];
+        reimbursement.author, reimbursement.resolver, reimbursement.status, reimbursement.type];
         const result = await client.query(queryString, params);
         return result.rows[0].reimbursementid;
     } catch (err) {
@@ -150,7 +173,25 @@ export async function findByReimbursmentId(id: number) {
     try {
         client = await connectionPool.connect(); // basically .then is everything after this
         console.log('Here');
-        const result = await client.query('SELECT * FROM reimbursements WHERE reimbursementid = $1', [id]);
+        const result = await client.query(`
+        SELECT reim.*, author.userid, author.firstname, author.lastname, author.roleid,
+	    resolv.userid as resid, resolv.username as resusername, 
+	    resolv.password as respassword, resolv.firstname as resfirstname, 
+	    resolv.lastname as reslastname, resolv.email as resemail, resolv.roleid as resroleid,
+	    reimstat.status as statusname, reimtype.type as typename
+        FROM reimbursements AS reim
+        LEFT JOIN users AS author
+	        ON (author.userid = reim.authorid)
+        LEFT JOIN users AS resolv
+	        ON (reim.resolverid = resolv.userid)
+        LEFT JOIN roles AS authrole
+	        ON (authrole.roleid = author.roleid)
+        LEFT JOIN roles AS resolvrole
+	        ON (resolvrole.roleid = resolv.roleid)
+        LEFT JOIN reimbursementstatus AS reimstat
+	        USING (statusid)
+        LEFT JOIN reimbursementtype AS reimtype
+	        USING (typeid) WHERE reimbursementid = $1`, [id]);
         const sqlReimbursements = result.rows[0];
         return sqlReimbursements && convertSqlReimbursements(sqlReimbursements);
     } catch (err) {
@@ -186,7 +227,7 @@ export async function update(reimbursement: Reimbursements) {
          RETURNING *
              `;
         const params = [reimbursement.amount, reimbursement.datesubmitted, reimbursement.dateresolved, reimbursement.description,
-        reimbursement.authorid, reimbursement.resolverid, reimbursement.statusid, reimbursement.typeid, reimbursement.reimbursementid];
+        reimbursement.author, reimbursement.resolver, reimbursement.status, reimbursement.type, reimbursement.reimbursementid];
         console.log(params + '\n');
         const result = await client.query(queryString, params);
         const sqlReimbursement = result.rows[0];

@@ -28,6 +28,16 @@ reimbursementsRouter.get('/status/:statusid', async (req, res) => {
     res.json(reimbursement);
 });
 
+/**
+ * /reimbursements/status
+ * find reimbursement by the status
+ */
+reimbursementsRouter.get('/status', async (req, res) => {
+    const reimbursement = await reimbursementsDao.findStatus();
+    console.log(reimbursement);
+    res.json(reimbursement);
+});
+
 
 /**
  * /reimbursements/author/:authorid
