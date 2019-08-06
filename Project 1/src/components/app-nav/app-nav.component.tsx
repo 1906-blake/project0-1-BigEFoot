@@ -7,7 +7,7 @@ export class NavComponent extends React.Component {
     return (
       <nav className="navbar navbar-toggleable-md navbar-expand-lg navbar-light bg-light display-front nav-pad">
         <div className="navbar-header c-pointer shift-left">
-          <Link to="/home" className="unset-anchor">
+          <Link to="/sign-in" className="unset-anchor">
             <img className="img-adjust-position rev-logo" src={RevLogo} alt="revature" />
           </Link>
         </div>
@@ -26,11 +26,11 @@ export class NavComponent extends React.Component {
               <Link to="/reimbursements" className="unset-anchor nav-link">Reimbursements</Link>
             </li>
             <li className="nav-item active">
-              <Link to="/second" className="unset-anchor nav-link">Second</Link>
+              <Link to={`/submit`} className="unset-anchor nav-link">Create Reimbursement</Link>
             </li>
-            {/*<li className="nav-item active">
-              <Link to="/clicker" className="unset-anchor nav-link">Clicker</Link>
-            </li> */}
+            <li className="nav-item active">
+              <Link to="/profile" className="unset-anchor nav-link">Profile</Link>
+            </li>
             <li className="nav-item active">
               <Link to="/cards" className="unset-anchor nav-link">Cards</Link>
             </li>

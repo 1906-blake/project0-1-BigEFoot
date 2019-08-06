@@ -9,10 +9,10 @@ export default class Reimbursement {
         public datesubmitted: Date, // not null
         public dateresolved: Date,
         public description = '', // not null
-        public authorid: User,  // foreign key -> User, not null
-        public resolverid: User, // foreign key -> User
-        public statusid: ReimbursementStatus, // foreign Key -> ReimbursementStatus, not null
-        public typeid: ReimbursementType // foreign key -> ReimbursementType
+        public author: User,  // foreign key -> User, not null
+        public resolver: User, // foreign key -> User
+        public status: ReimbursementStatus, // foreign Key -> ReimbursementStatus, not null
+        public type: ReimbursementType // foreign key -> ReimbursementType
     ) { }
 
 }

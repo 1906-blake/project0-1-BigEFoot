@@ -1,8 +1,5 @@
 import React from 'react';
 import './App.css';
-//import { FirstComponent } from './components/first/first.component';
-import Second from './components/second/second.component';
-import Third from './components/third/third.component';
 import { BrowserRouter, Route, Switch } from 'react-router-dom';
 import NotFound from './components/not-found/not-found.component';
 import { NavComponent } from './components/app-nav/app-nav.component';
@@ -14,7 +11,9 @@ import { Pokemon } from './components/pokemon/pokemon.component';
 import { Nested } from './components/nested/nested.component';
 import { SignIn } from './components/sign-in/sign-in.component';
 import Cards from './components/cards/cards.component';
-import Reimbursements from './components/reimbursements/reimbursements';
+import Reimbursements from './components/reimbursements/reimbursements.component';
+import {CreateReimbursement} from './components/reimbursements/submit.reim.component';
+import Profile from './components/profile/profile.component';
 
 const App: React.FC = () => {
   return (
@@ -23,9 +22,9 @@ const App: React.FC = () => {
         <NavComponent />
         {/* The switch will only render the first route to match */}
         <Switch>
-          <Route path="/reimbersement" component={Reimbursements} />
-          <Route path="/second" component={Second} />
-          <Route path="/third" component={Third} />
+          <Route path="/reimbursements" component={Reimbursements} />
+          <Route path={`/submit`} component={CreateReimbursement} />
+          <Route path="/profile" component={Profile} />
           <Route path="/cards" component={Cards} />
           <Route path="/chuck-norris" component={Norris} />
           <Route path="/clicker" component={Clicker} />

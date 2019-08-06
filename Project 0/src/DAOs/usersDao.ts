@@ -37,7 +37,7 @@ export async function findAll() {
         client = await connectionPool.connect(); // basically .then is everything after this
         const result = await client.query(`
         SELECT * FROM users 
-        Left join roles
+        Left JOIN roles
         using (roleid);
         `);
         // convert result from sql object to js object

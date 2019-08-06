@@ -11,11 +11,11 @@ export async function findAll() {
     try {
         client = await connectionPool.connect(); // basically .then is everything after this
         const result = await client.query(`
-        SELECT reim.*, author.userid, author.firstname, author.lastname, author.roleid,
-	    resolv.userid AS resid, resolv.username AS resusername, 
-	    resolv.password AS respassword, resolv.firstname AS resfirstname, 
-	    resolv.lastname AS reslastname, resolv.email AS resemail, resolv.roleid AS resroleid,
-	    reimstat.status, reimtype.type, resolvrole.role AS resrole
+        SELECT reim.*, author.userid, author.username, author.password, author.firstname, author.lastname, author.email, author.roleid,
+	    resolv.userid as resid, resolv.username as resusername, authrole.role,
+	    resolv.password as respassword, resolv.firstname as resfirstname, 
+	    resolv.lastname as reslastname, resolv.email as resemail, resolv.roleid as resroleid,
+	    reimstat.status as statusname, reimtype.type as typename, resolvrole.role as resrole 
         FROM reimbursements AS reim
         LEFT JOIN users AS author
 	        ON (author.userid = reim.authorid)
@@ -29,7 +29,7 @@ export async function findAll() {
 	        USING (statusid)
         LEFT JOIN reimbursementtype AS reimtype
 	        USING (typeid)
-	    ORDER BY datesubmitted;
+	    ORDER BY datesubmitted
         `);
         // convert result from sql object to js object
         return result.rows.map(convertSqlReimbursements);
@@ -61,6 +61,69 @@ export async function findStatus() {
     return undefined;
 }
 
+/*
+find reimbursement by reimbursement statusid
+/reimbursement/status/:statusid
+/not done
+*/
+export async function findTypes() {
+    console.log('finding types: ');
+    let client: PoolClient;
+    try {
+        client = await connectionPool.connect();
+        const queryString = `
+        SELECT * FROM reimbursementtype;`;
+        const result = await client.query(queryString);
+        return result.rows;
+    } catch (err) {
+        console.log(err);
+    } finally {
+        client && client.release();
+    }
+    return undefined;
+}
+
+/*
+find reimbursement by reimbursement statusid
+/reimbursement/status/:statusid
+/not done
+*/
+export async function findByTypeId(id: number) {
+    console.log('finding reimbursement by type ID: ' + id);
+    let client: PoolClient;
+    try {
+        client = await connectionPool.connect();
+        const queryString = `
+        SELECT reim.*, author.userid, author.username, author.password, author.firstname, author.lastname, author.email, author.roleid,
+	    resolv.userid as resid, resolv.username as resusername, authrole.role,
+	    resolv.password as respassword, resolv.firstname as resfirstname, 
+	    resolv.lastname as reslastname, resolv.email as resemail, resolv.roleid as resroleid,
+	    reimstat.status as statusname, reimtype.type as typename, resolvrole.role as resrole 
+        FROM reimbursements AS reim
+        LEFT JOIN users AS author
+	        ON (author.userid = reim.authorid)
+        LEFT JOIN users AS resolv
+	        ON (reim.resolverid = resolv.userid)
+        LEFT JOIN roles AS authrole
+	        ON (authrole.roleid = author.roleid)
+        LEFT JOIN roles AS resolvrole
+	        ON (resolvrole.roleid = resolv.roleid)
+        LEFT JOIN reimbursementstatus AS reimstat
+	        USING (statusid)
+        LEFT JOIN reimbursementtype AS reimtype
+            USING (typeid)
+        WHERE typeid = $1
+	    ORDER BY datesubmitted;`;
+        const result = await client.query(queryString, [id]);
+        return result.rows;
+    } catch (err) {
+        console.log(err);
+    } finally {
+        client && client.release();
+    }
+    return undefined;
+}
+
 
 /*
 find reimbursement by reimbursement statusid
@@ -73,11 +136,11 @@ export async function findByStatusId(id: number) {
     try {
         client = await connectionPool.connect();
         const queryString = `
-        SELECT reim.*, author.userid, author.firstname, author.lastname, author.roleid,
-	    resolv.userid as resid, resolv.username as resusername, 
+        SELECT reim.*, author.userid, author.username, author.password, author.firstname, author.lastname, author.email, author.roleid,
+	    resolv.userid as resid, resolv.username as resusername, authrole.role,
 	    resolv.password as respassword, resolv.firstname as resfirstname, 
 	    resolv.lastname as reslastname, resolv.email as resemail, resolv.roleid as resroleid,
-	    reimstat.status as statusname, reimtype.type as typename
+	    reimstat.status as statusname, reimtype.type as typename, resolvrole.role as resrole 
         FROM reimbursements AS reim
         LEFT JOIN users AS author
 	        ON (author.userid = reim.authorid)
@@ -114,11 +177,11 @@ export async function findByAuthorId(id: number) {
     try {
         client = await connectionPool.connect();
         const queryString = `
-        SELECT reim.*, author.userid, author.firstname, author.lastname, author.roleid,
-	    resolv.userid as resid, resolv.username as resusername, 
+        SELECT reim.*, author.userid, author.username, author.password, author.firstname, author.lastname, author.email, author.roleid,
+	    resolv.userid as resid, resolv.username as resusername, authrole.role,
 	    resolv.password as respassword, resolv.firstname as resfirstname, 
 	    resolv.lastname as reslastname, resolv.email as resemail, resolv.roleid as resroleid,
-	    reimstat.status as statusname, reimtype.type as typename
+	    reimstat.status as statusname, reimtype.type as typename, resolvrole.role as resrole 
         FROM reimbursements AS reim
         LEFT JOIN users AS author
 	        ON (author.userid = reim.authorid)

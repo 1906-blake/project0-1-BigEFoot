@@ -19,7 +19,7 @@ reimbursementsRouter.get('',
 
 
 /**
- * /reimbursements/status/:statusId
+ * /reimbursements/status/:statusid
  * find reimbursement by the status id
  */
 reimbursementsRouter.get('/status/:statusid', async (req, res) => {
@@ -27,6 +27,8 @@ reimbursementsRouter.get('/status/:statusid', async (req, res) => {
     console.log(reimbursement);
     res.json(reimbursement);
 });
+
+
 
 /**
  * /reimbursements/status
@@ -38,6 +40,26 @@ reimbursementsRouter.get('/status', async (req, res) => {
     res.json(reimbursement);
 });
 
+/**
+ * /reimbursements/types
+ * find reimbursement by the reimbursementtype id
+ */
+reimbursementsRouter.get('/type', async (req, res) => {
+    const reimbursement = await reimbursementsDao.findTypes();
+    console.log(reimbursement);
+    res.json(reimbursement);
+});
+
+
+/**
+ * /reimbursements/types/:typeId
+ * find reimbursement by the reimbursementtype id
+ */
+reimbursementsRouter.get('/type/:typeid', async (req, res) => {
+    const reimbursement = await reimbursementsDao.findByTypeId(+req.params.typeid);
+    console.log(reimbursement);
+    res.json(reimbursement);
+});
 
 /**
  * /reimbursements/author/:authorid
