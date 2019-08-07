@@ -1,27 +1,27 @@
-import React, { Component } from 'react';
-import Reimbursement from '../../models/reimbursements';
-import { ButtonDropdown, DropdownToggle, DropdownMenu, DropdownItem } from 'reactstrap';
-import { environment } from '../../environment';
-import ReimbursementStatus from '../../models/reimbursementsStatus';
-import Users from '../../models/users';
+import React, { Component } from "react";
+import Reimbursement from "../../models/reimbursements";
+import { environment } from "../../environment";
+import ReimbursementStatus from "../../models/reimbursementsStatus";
+import { ButtonDropdown, DropdownToggle, DropdownMenu, DropdownItem, Button } from 'reactstrap';
+
+
+
 
 interface IState {
     reim: Reimbursement[],
     byStatus: ReimbursementStatus[],
-    byAuthId: Users[],
     reimDropdown: {
         isOpen: boolean,
         selection: any
     }
 }
 
-export default class Reimbursements extends Component<{}, IState> {
+export default class ApproveDeny extends Component<{}, IState> {
     constructor(props: any) {
         super(props);
         this.state = {
             reim: [],
             byStatus: [],
-            byAuthId: [],
             reimDropdown: {
                 isOpen: false,
                 selection: 'All'
@@ -30,14 +30,37 @@ export default class Reimbursements extends Component<{}, IState> {
     }
 
     async componentDidMount() {
-        this.getReimbursements()
-        this.getStatus()
-        this.getAuthId()
+        this.getStatus();
+    }
+
+    getStatus = async () => {
+        const resp = await fetch(environment.context + '/reimbursements/status', {
+            credentials: 'include'
+        });
+        const byStatus = await resp.json();
+        this.setState({
+            byStatus
+        });
+        console.log(byStatus);
+    }
+
+    getReimByStatus = async (byStatus: ReimbursementStatus) => {
+        const resp = await fetch(environment.context + '/reimbursements/status/' + byStatus.statusid, {
+            credentials: 'include'
+        });
+        const reimFromServer = await resp.json();
+        this.setState({
+            byStatus: reimFromServer,
+            reimDropdown: {
+                ...this.state.reimDropdown,
+                selection: byStatus.status
+            }
+        });
     }
 
     getReimbursements = async () => {
         const resp = await fetch(environment.context + '/reimbursements', {
-            //credentials: 'include'
+            credentials: 'include'
         });
         const reimFromServer = await resp.json();
         this.setState({
@@ -50,53 +73,6 @@ export default class Reimbursements extends Component<{}, IState> {
         console.log(reimFromServer);
     }
 
-    getStatus = async () => {
-        const resp = await fetch(environment.context + '/reimbursements/status', {
-            //credentials: 'include'
-        });
-        const byStatus = await resp.json();
-        this.setState({
-            byStatus
-        });
-        console.log(byStatus);
-    }
-
-    getReimByStatus = async (byStatus: ReimbursementStatus) => {
-        const resp = await fetch(environment.context + '/reimbursements/status/' + byStatus.statusid, {
-            //credentials: 'include'
-        });
-        const reimFromServer = await resp.json();
-        this.setState({
-            reim: reimFromServer,
-            reimDropdown: {
-                ...this.state.reimDropdown,
-                selection: byStatus.status
-            }
-        });
-    }
-
-    getAuthId = async () => {
-        const resp = await fetch(environment.context + '/users', {
-            credentials: 'include'
-        });
-        const byAuthId = await resp.json();
-        this.setState({
-            byAuthId
-        });
-        console.log(byAuthId);
-    }
-
-    getReimByAuthId = async (byAuthId: Users) => {
-        const resp = await fetch(environment.context + '/reimbursements/author/' + byAuthId.userid, {
-            credentials: 'include'
-        });
-        const reimFromServer = await resp.json();
-        this.setState({
-            reim: reimFromServer
-
-        });
-    }
-
     toggleReimDropdown = () => {
         this.setState({
             reimDropdown: {
@@ -104,6 +80,55 @@ export default class Reimbursements extends Component<{}, IState> {
                 isOpen: !this.state.reimDropdown.isOpen
             }
         });
+    }
+
+    approveReim = async (reimbursementid: any) => {
+        const body = {
+            reimbursementid,
+            status: {
+                statusId: 2
+            }
+        }
+        await fetch('http://localhost:8012/reimbursements', {
+            method: 'PATCH',
+            credentials: 'include',
+            body: JSON.stringify(body),
+            headers: {
+                'content-type': 'application/json'
+            }
+        });
+        this.getReimbursements();
+    }
+    denyReim = async (reimbursementId: any) => {
+        const body = {
+            reimbursementId,
+            status: {
+                statusId: 3
+            }
+        }
+        await fetch('http://localhost:8012/reimbursements', {
+            method: 'PATCH',
+            credentials: 'include',
+            body: JSON.stringify(body),
+            headers: {
+                'content-type': 'application/json'
+            }
+        });
+        this.getReimbursements();
+    }
+
+    getApDeButtons = (reimid: number, reimSta: number) => {
+        const currentUser = localStorage.getItem('user');
+        const user = currentUser && JSON.parse(currentUser);
+        console.log('userid: ' + user.userid);
+        if (user.role.roleid === 1) {
+            if (reimSta === 1) {
+                return (<td>
+                    <Button color='success' onClick={() => this.approveReim(reimid)}>Approve</Button>
+                    <Button color='warning' onClick={() => this.denyReim(reimid)}>Deny</Button>
+                </td>)
+            }
+        }
     }
 
     render() {
@@ -127,13 +152,6 @@ export default class Reimbursements extends Component<{}, IState> {
                                 </DropdownItem>
                             ))
                         }
-                        {
-                            this.state.byAuthId.map(byAuthId => (
-                                <DropdownItem key={"author dropdown" + byAuthId.userid} onClick={() => this.getReimByAuthId(byAuthId)}>
-                                    {byAuthId.userid}
-                                </DropdownItem>
-                            ))
-                        }
                     </DropdownMenu>
                 </ButtonDropdown>
                 <table className="table table-striped table-dark">
@@ -152,7 +170,7 @@ export default class Reimbursements extends Component<{}, IState> {
                     <tbody>
                         {
                             reimbursements.map(reimbursement =>
-                                <tr key={'reimbursementId-' + reimbursement.reimbursementid}>
+                                <tr key={'reimbursement ID-' + reimbursement.reimbursementid}>
                                     <td>{reimbursement.amount}</td>
                                     <td>{reimbursement.datesubmitted}</td>
                                     <td>{reimbursement.dateresolved && reimbursement.dateresolved}</td>
@@ -161,6 +179,7 @@ export default class Reimbursements extends Component<{}, IState> {
                                     <td>{reimbursement.resolver.firstname}</td>
                                     <td>{reimbursement.status.status}</td>
                                     <td>{reimbursement.type.type}</td>
+                                    {this.getApDeButtons(reimbursement.reimbursementid, reimbursement.status.statusid)}
                                 </tr>)
                         }
                     </tbody>

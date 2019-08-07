@@ -4,16 +4,13 @@ import { BrowserRouter, Route, Switch } from 'react-router-dom';
 import NotFound from './components/not-found/not-found.component';
 import { NavComponent } from './components/app-nav/app-nav.component';
 import { Home } from './components/home/home.component';
-import { Clicker } from './components/clicker/clicker.component';
-import { TicTacToe } from './components/tic-tac/tic-tac.component';
-import { Norris } from './components/norris/norris.component';
-import { Pokemon } from './components/pokemon/pokemon.component';
-import { Nested } from './components/nested/nested.component';
 import { SignIn } from './components/sign-in/sign-in.component';
-import Cards from './components/cards/cards.component';
 import Reimbursements from './components/reimbursements/reimbursements.component';
-import {CreateReimbursement} from './components/reimbursements/submit.reim.component';
-import Profile from './components/profile/profile.component';
+import { CreateReimbursement } from './components/reimbursements/submit.reim.component';
+import { ChangeInfo } from './components/profile/change.information.component';
+import { Profile } from './components/profile/profile.component';
+import ApproveDeny from './components/reimbursements/approve.reimbursement.component';
+
 
 const App: React.FC = () => {
   return (
@@ -24,15 +21,11 @@ const App: React.FC = () => {
         <Switch>
           <Route path="/reimbursements" component={Reimbursements} />
           <Route path={`/submit`} component={CreateReimbursement} />
-          <Route path="/profile" component={Profile} />
-          <Route path="/cards" component={Cards} />
-          <Route path="/chuck-norris" component={Norris} />
-          <Route path="/clicker" component={Clicker} />
+          <Route path="/change" component={ChangeInfo} />
+          <Route path="/approve" component={ApproveDeny} />
           <Route path="/home" component={Home} />
-          <Route path="/nested" component={Nested} />
-          <Route path="/pokemon" component={Pokemon} />
           <Route path="/sign-in" component={SignIn} />
-          <Route path="/tic-tac-toe" component={TicTacToe} />
+          <Route path="/profile" component={Profile} />
           <Route component={NotFound} />
         </Switch>
       </div>

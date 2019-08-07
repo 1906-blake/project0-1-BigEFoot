@@ -104,7 +104,7 @@ export async function save(user: Users) {
 /*
 /Update  user fields
 */
-export async function update(user: Users) {
+export async function update(user: Partial<Users>) {
     const oldUser = await findById(user.userid);
     if (!oldUser) {
         return undefined;
@@ -119,13 +119,11 @@ export async function update(user: Users) {
     try {
         client = await connectionPool.connect();
         const queryString = `
-        UPDATE users SET username = $1, password = $2, firstname = $3, 
-                        lastname = $4, email = $5, roleid = $6
-        WHERE userid = $7
+        UPDATE users SET firstname = $1, lastname = $2, email = $3
+        WHERE userid = $4
         RETURNING *
             `;
-        const params = [user.username, user.password, user.firstname,
-        user.lastname, user.email, user.role.roleid, user.userid];
+        const params = [ user.firstname, user.lastname, user.email, user.userid];
         console.log(params);
         const result = await client.query(queryString, params);
         const sqlUser = result.rows[0];

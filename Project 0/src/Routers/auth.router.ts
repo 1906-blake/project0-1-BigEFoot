@@ -10,7 +10,7 @@ authRouter.post('/login', async (req, res) => {
     const user = await usersDao.findByUsernameAndPassword(username, password);
     if (user) {
         req.session.user = user;
-        res.end();
+        res.json(user);
     } else {
         req.session.destroy(() => { });
         res.status(400);

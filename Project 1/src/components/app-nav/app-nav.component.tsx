@@ -2,7 +2,32 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import RevLogo from '../../assets/rev-logo.png';
 
-export class NavComponent extends React.Component {
+
+interface IState{
+  role: number
+}
+
+export class NavComponent extends React.Component <{}, IState> {
+
+  constructor(props: any) {
+    super(props);
+    this.state = ({
+      role: 0
+    });
+  }
+ getUser = () => {
+  const userString= localStorage.getItem('user');
+  const user = userString && JSON.parse(userString);
+  this.setState({
+    ...this.state,
+    role: user.role.roleid
+  })
+ }
+ componentDidMount(){
+  this.getUser();
+ }
+
+
   render() {
     return (
       <nav className="navbar navbar-toggleable-md navbar-expand-lg navbar-light bg-light display-front nav-pad">
@@ -23,29 +48,27 @@ export class NavComponent extends React.Component {
               <Link to="/home" className="unset-anchor nav-link">Home</Link>
             </li>
             <li className="nav-item active">
-              <Link to="/reimbursements" className="unset-anchor nav-link">Reimbursements</Link>
+            {this.state.role && (this.state.role === 1 || this.state.role === 3)
+              ?<Link to="/reimbursements" className="unset-anchor nav-link">Reimbursements</Link>
+              : null
+              }
             </li>
             <li className="nav-item active">
+              
               <Link to={`/submit`} className="unset-anchor nav-link">Create Reimbursement</Link>
+              
+            </li>
+            <li className="nav-item active">
+              <Link to="/change" className="unset-anchor nav-link">Change Information</Link>
+            </li>
+            <li className="nav-item active">
+            {this.state.role && (this.state.role === 1 || this.state.role === 3)
+              ?<Link to="/approve" className="unset-anchor nav-link">Approve/Deny</Link>
+              : null
+              }
             </li>
             <li className="nav-item active">
               <Link to="/profile" className="unset-anchor nav-link">Profile</Link>
-            </li>
-            <li className="nav-item active">
-              <Link to="/cards" className="unset-anchor nav-link">Cards</Link>
-            </li>
-            <li className="nav-item active dropdown">
-              <div className="nav-link dropdown-toggle pointer" id="examples-dropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Examples</div>
-              <div className="dropdown-menu" aria-labelledby="examples-dropdown">
-                <div className="dropdown-item"><Link to="/movies" className="unset-anchor nav-link active">Movies</Link></div>
-                <div className="dropdown-item"><Link to="/clicker" className="unset-anchor nav-link active">Clicker Game</Link></div>
-                <div className="dropdown-item"><Link to="/tic-tac-toe" className="unset-anchor nav-link active">Tic Tac Toe Game</Link></div>
-                <div className="dropdown-item"><Link to="/chuck-norris" className="unset-anchor nav-link active">Chuck Norris Jokes</Link></div>
-                <div className="dropdown-item"><Link to="/pokemon" className="unset-anchor nav-link active">Pokemon</Link></div>
-              </div>
-            </li>
-            <li className="nav-item active">
-              <Link to="/nested" className="unset-anchor nav-link">Nested</Link>
             </li>
           </ul>
         </div>

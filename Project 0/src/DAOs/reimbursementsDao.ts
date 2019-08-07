@@ -208,17 +208,20 @@ export async function findByAuthorId(id: number) {
 }
 
 export async function save(reimbursement: Reimbursements) {
+    console.log(reimbursement);
     let client: PoolClient;
+    const d = new Date().toLocaleDateString();
     try {
         client = await connectionPool.connect(); // basically .then is everything after this
         const queryString = `
             INSERT INTO reimbursements (amount, datesubmitted, 
-                description, authorid, resolverid, statusid, typeid)
-            VALUES 	($1, $2, $3, $4, $5, $6, $7)
+                description, authorid, statusid, typeid)
+            VALUES 	($1, $2, $3, $4, $5, $6)
             RETURNING reimbursementid
         `;
-        const params = [reimbursement.amount, reimbursement.datesubmitted, reimbursement.description,
-        reimbursement.author, reimbursement.resolver, reimbursement.status, reimbursement.type];
+        console.log('author is' + reimbursement);
+        const params = [reimbursement.amount, d, reimbursement.description,
+        reimbursement.author, 1, reimbursement.type];
         const result = await client.query(queryString, params);
         return result.rows[0].reimbursementid;
     } catch (err) {
